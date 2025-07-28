@@ -14,7 +14,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/Nithiyanantham-Manikandan/emr-api.git'
+                git branch: 'main', url: 'https://github.com/Nithiyanantham-Manikandan/emr-api.git'
             }
         }
 
