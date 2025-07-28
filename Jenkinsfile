@@ -2,25 +2,31 @@ pipeline {
     agent any
 
     tools {
-        maven 'Maven 3'   // Make sure this matches the name in Jenkins tool config
+        maven 'Maven 3'
         jdk 'JDK 17'
     }
 
     environment {
-        IMAGE_NAME = 'nithiyananthammanikandan/emr-api'
+        IMAGE_NAME = 'nithiyanantham/emr-api'
         VERSION = 'latest'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/Nithiyanantham-Manikandan/emr-api.git'
+                git 'https://github.com/Nithiyanantham-Manikandan/emr-api.git'
             }
         }
 
-        stage('Build') {
+        stage('Build & Test') {
             steps {
-                sh 'mvn clean package -DskipTests'
+                sh 'mvn clean verify'  // Now includes unit testing
+            }
+        }
+
+        stage('Test Report') {
+            steps {
+                junit 'target/surefire-reports/*.xml'
             }
         }
 
@@ -48,5 +54,3 @@ pipeline {
         }
     }
 }
-
-
