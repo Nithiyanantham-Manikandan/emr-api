@@ -7,7 +7,7 @@ pipeline {
     }
 
     environment {
-        IMAGE_NAME = 'nithiyanantham/emr-api'
+        IMAGE_NAME = 'nithiyananthammanikandan/emr-api'
         VERSION = 'latest'
     }
 
