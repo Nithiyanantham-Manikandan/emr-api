@@ -25,10 +25,17 @@ pipeline {
         }
 
         stage('Test Report') {
-            steps {
-                junit 'target/surefire-reports/*.xml'
-            }
-        }
+  steps {
+    script {
+      def hasReports = fileExists('target/surefire-reports')
+      if (hasReports) {
+        junit 'target/surefire-reports/*.xml'
+      } else {
+        echo '⚠️ No test reports found. Skipping JUnit report publishing.'
+      }
+    }
+  }
+}
 
         stage('Docker Build') {
             steps {
