@@ -2,42 +2,42 @@ pipeline {
     agent any
 
     tools {
-        maven 'Maven 3'       // Update to match your Jenkins Maven name
-        jdk 'JDK 17'          // Update to match your Jenkins JDK name
+        maven 'Maven 3'   // Make sure this matches the name in Jenkins tool config
+        jdk 'JDK 17'
     }
 
     environment {
-        IMAGE_NAME = 'emr-api'
-        IMAGE_TAG  = 'latest'
+        IMAGE_NAME = 'nithiyanantham/emr-api'
+        VERSION = 'latest'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                echo '✅ Checking out source code from GitHub...'
-                checkout scm
+                git 'https://github.com/Nithiyanantham-Manikandan/emr-api.git'
             }
         }
 
-        stage('Build with Maven') {
+        stage('Build') {
             steps {
-                echo '⚙️ Building the project using Maven...'
                 sh 'mvn clean package -DskipTests'
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Docker Build') {
             steps {
-                echo "🐳 Building Docker image: ${IMAGE_NAME}:${IMAGE_TAG}..."
-                sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+                sh 'docker build -t $IMAGE_NAME:$VERSION .'
             }
         }
 
-        stage('Run Docker Container') {
+        stage('Docker Login & Push') {
             steps {
-                echo '🚀 Running Docker container on port 9090...'
-                sh 'docker rm -f emr-api-container || true'
-                sh 'docker run -d --name emr-api-container -p 9090:9090 emr-api:latest'
+                withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh '''
+                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                        docker push $IMAGE_NAME:$VERSION
+                    '''
+                }
             }
         }
     }
@@ -48,4 +48,5 @@ pipeline {
         }
     }
 }
+
 
